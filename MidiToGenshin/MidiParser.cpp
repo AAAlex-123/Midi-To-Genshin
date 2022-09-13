@@ -1,8 +1,8 @@
 #include "MidiParser.h"
 
-MidiFile* MidiParser::parseByteStream()
+CringeMidiFile* MidiParser::parseByteStream()
 {
-	MidiFile* midi = new MidiFile();
+	CringeMidiFile* cringe_midi_file = new CringeMidiFile();
 
 	// header chunk
 	std::string chunk_type = parseString(4);
@@ -45,11 +45,15 @@ MidiFile* MidiParser::parseByteStream()
 	// track chunks
 	for (size_t i = 0; i < ntrks; i++)
 	{
+		CringeMidiTrack *track = new CringeMidiTrack();
+		cringe_midi_file->tracks.push_back(track);
+
 		chunk_type = parseString(4);
 		chunk_length = parse32();
 
 		bool endOfTrack = false;
 
+		uint32_t wall_time = 0;
 		uint32_t delta_time;
 		uint8_t prev_status_byte = 0;
 		uint8_t status_byte;
@@ -59,6 +63,7 @@ MidiFile* MidiParser::parseByteStream()
 
 			// MTrk event
 			delta_time = parseValLength();
+			wall_time += delta_time;
 			printf("delta_time: %4d\n", delta_time);
 
 			status_byte = parse8();
@@ -95,6 +100,8 @@ MidiFile* MidiParser::parseByteStream()
 					// appendix 1.3
 					uint8_t key_number = parse8();
 					uint8_t velocity = parse8();
+					if (velocity != 0)
+						track->notes.push_back({ wall_time, key_number});
 					printf("--- Note On: Note number = %d, Velocity = %d\n", key_number, velocity);
 					break;
 				}
@@ -173,7 +180,7 @@ MidiFile* MidiParser::parseByteStream()
 		}
 	}
 
-	return midi;
+	return cringe_midi_file;
 }
 
 void MidiParser::skipBytes(int byteCount)

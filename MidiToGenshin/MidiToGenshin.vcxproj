@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileUtil.h" />
+    <ClInclude Include="MidiEvent.h" />
     <ClInclude Include="MidiFile.h" />
     <ClInclude Include="MidiParser.h" />
   </ItemGroup>

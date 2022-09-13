@@ -1,5 +1,7 @@
-#include "FileUtil.h"
 #include <iostream>
+#include <array>
+
+#include "FileUtil.h"
 #include "MidiParser.h"
 
 using namespace FileUtil;
@@ -9,7 +11,17 @@ public:
 	void test_MidiParser_parseByteStream(const std::string& testCaseFilename) const
 	{
 		FileByteStream bs(testCaseFilename);
-		MidiParser(&bs).parseByteStream();
+		CringeMidiFile* cmf = MidiParser(&bs).parseByteStream();
+		for (auto& track : cmf->tracks)
+		{
+			printf("\n\n\nnew track\n");
+			for (auto& note : track->notes)
+			{
+				printf("delta time: %6d - Note: %s\n", note.wall_time,
+					Tester::get_note_from_key_number(note.key_number).c_str());
+			}
+		}
+		cmf->play();
 	}
 
 	void test_MidiParser_parseValLength(const std::string& testCaseBytes) const
@@ -25,16 +37,29 @@ public:
 		TestByteStream bs(testCaseString);
 		printf("%s\n", MidiParser(&bs).parseString(testCaseLength).c_str());
 	}
+
+private:
+	static std::string get_note_from_key_number(uint8_t key_number)
+	{
+		static std::array<std::string, 12> note_names{ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+		return note_names[key_number % 12] + std::to_string((key_number / 12) - 1); // note name + octave
+	}
 };
 
 void test_MidiParser_parseByteStream(const Tester&);
 void test_MidiParser_parseValLength(const Tester&);
 void test_MidiParser_parseString(const Tester&);
 
-int main()
+int main(int argc, char** argv)
 {
+	if (argc == 1) {
+		printf("please specify a file");
+		return -1;
+	}
 	Tester tester;
-	test_MidiParser_parseByteStream(tester);
+	tester.test_MidiParser_parseByteStream(argv[1]);
+	// Tester tester;
+	// test_MidiParser_parseByteStream(tester);
 	// test_MidiParser_parseValLength(tester);
 	// test_MidiParser_parseString(tester);
 }
@@ -42,8 +67,10 @@ int main()
 void test_MidiParser_parseByteStream(const Tester& tester)
 {
 	std::string testCases[] = {
-		"C:\\Users\\alexm\\musescore\\scores\\exports\\alex\\midi\\MidiTest-1_track.mid",
+		// "C:\\Users\\alexm\\musescore\\scores\\exports\\alex\\midi\\MidiTest-my_war.mid",
+		// "C:\\Users\\alexm\\musescore\\scores\\exports\\alex\\midi\\MidiTest-1_track.mid",
 		// "C:\\Users\\alexm\\musescore\\scores\\exports\\alex\\midi\\MidiTest_2track.mid",
+		"C:\\Users\\alexm\\musescore\\scores\\exports\\alex\\midi\\MidiTest-a_winter_night.mid"
 	};
 
 	for (auto const& testCase : testCases) {

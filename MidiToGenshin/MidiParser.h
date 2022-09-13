@@ -8,12 +8,12 @@
 class MidiParser
 {
 public:
-	static MidiFile* parse(const std::string& filename);
+	static CringeMidiFile* parse(const std::string& filename);
 
 private:
 	explicit MidiParser(FileUtil::ByteStream * const bs) : in(bs) {}
 
-	MidiFile* parseByteStream();
+	CringeMidiFile* parseByteStream();
 
 	void skipBytes(int byteCount);
 	std::uint32_t parseValLength();
@@ -29,18 +29,6 @@ private:
 	FileUtil::ByteStream * const in;
 
 	friend class Tester;
-};
-
-enum MidiMessage : uint8_t
-{
-	NoteOff = 0x80,
-	NoteOn = 0x90,
-	PolyphonicKeyPressure = 0xA0,
-	ControlChange = 0xB0,
-	ProgramChange = 0xC0,
-	ChannelPressure = 0xD0,
-	PitchWheelChange = 0xE0,
-	SystemMessage = 0xF0,
 };
 
 enum MetaEvent : uint8_t
