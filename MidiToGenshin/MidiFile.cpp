@@ -1,4 +1,8 @@
+#include <fstream>
+
 #include "MidiFile.h"
+#include "Properties.h"
+
 void CringeMidiFile::play()
 {
 	size_t track_no = tracks.size();
@@ -20,15 +24,15 @@ void CringeMidiFile::play()
 	};
 
 	auto get_key_note = [](int note_number) {
-		static std::array<char, 36> letter_sequence = {
-			'Z', '#', 'X', '#', 'C', 'V', '#', 'B', '#', 'N', '#', 'M',
-			'A', '#', 'S', '#', 'D', 'F', '#', 'G', '#', 'H', '#', 'J',
-			'Q', '#', 'W', '#', 'E', 'R', '#', 'T', '#', 'Y', '#', 'U', };
+		static std::array<std::string, 12> note_names =  { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+		std::string note = std::to_string((note_number / 12) - 1) + note_names[note_number % 12];
 
-		if (note_number - 48 < 0 || note_number - 48 > 36)
-			return -1;
+		std::ifstream properties_file;
+		properties_file.open("path/to/file", std::fstream::in);
+		properties props = properties::load(properties_file);
+		properties_file.close();
 
-		char letter = letter_sequence[note_number - 48];
+		char letter = props.get_or_default(note, "#").at(0);
 
 		if (letter == '#')
 			return -1;
