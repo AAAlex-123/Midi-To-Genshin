@@ -1,10 +1,7 @@
 #pragma once
 
-#include <array>
-#include <thread>
+#include <ostream>
 #include <vector>
-#include <Windows.h>
-#include <winuser.h>
 
 #include "MidiEvent.h"
 
@@ -17,7 +14,6 @@ struct CringeMidiFile
 {
 	std::vector<CringeMidiTrack*> tracks;
 
-	void play();
-	
+	void write_to_file(std::ostream& midi_ostream);
 };
 
